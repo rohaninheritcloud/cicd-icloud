@@ -42,7 +42,7 @@
 						<muleVersion>4.4.0</muleVersion>
 						<username>${username}</username>
 						<password>${password}</password>
-						<applicationName>cicd-project</applicationName>
+						<applicationName>cicd-project-icloudhyd</applicationName>
 						<environment>Sandbox</environment>
 						<workerType>MICRO</workerType>
 						<objectStoreV2>true</objectStoreV2>
