@@ -1,6 +1,4 @@
-# This workflow will build a MuleSoft project and deploy to CloudHub
-
-name: Build and Deploy to Sandbox
+name: Build, Test, and Deploy to Sandbox
 
 on:
   push:
@@ -48,8 +46,53 @@ jobs:
           name: artifacts
           path: target/*.jar
         
-  deploy:
+  test:
     needs: build
+    runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+    
+    - uses: actions/checkout@v2
+    
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    
+    - name: Download artifact
+      uses: actions/download-artifact@master
+      with:
+        name: artifacts
+
+    - name: Run MUnit Tests
+      run: mvn test
+
+    - name: Generate MUnit Coverage Report
+      run: mvn munit:coverage-report
+
+    - name: Check MUnit Coverage
+      id: check-coverage
+      run: |
+        coverage=$(xmllint --xpath "string(//totalCoverage)" target/site/munit/coverage-report.xml)
+        echo "MUnit Coverage: $coverage%"
+        if [ "$coverage" -lt 50 ]; then
+          echo "Coverage is less than 50%"
+          exit 1
+      env:
+        XMLLINT_LIBS: --shell
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@master
+      with:
+          name: coverage-report
+          path: target/site/munit/coverage-report.xml
+
+  deploy:
+    needs: test
     runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -73,7 +116,6 @@ jobs:
       env:
         USERNAME: ${{ secrets.USERNAME }}
         PASSWORD: ${{ secrets.PASSWORD }}
-
       run: |
         artifactName=$(ls *.jar | head -1)
         mvn deploy -DmuleDeploy \
