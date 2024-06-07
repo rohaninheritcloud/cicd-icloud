@@ -40,8 +40,8 @@
 					<cloudHubDeployment>
 						<uri>https://anypoint.mulesoft.com</uri>
 						<muleVersion>4.4.0</muleVersion>
-						<username>${username}</username>
-						<password>${password}</password>
+						<username>${MULE_USERNAME}</username>
+						<password>${MULE_PASSWORD}</password>
 						<applicationName>cicd-project</applicationName>
 						<environment>Sandbox</environment>
 						<workerType>MICRO</workerType>
