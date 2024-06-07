@@ -10,15 +10,35 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</http:listener-config>
 	<flow name="cicd-projectFlow" doc:id="88e4c9d8-510e-4ed2-acc4-8b2a871cf1b1" >
 		<http:listener doc:name="Listener" doc:id="f0241ef6-cca0-498e-bfa4-4f0ba9d83fc3" config-ref="HTTP_Listener_config" path="/test"/>
+		<logger level="INFO" doc:name="Logger" doc:id="a8b70551-71b8-4fbb-a6c3-0b9fd279dc75" message='#["flow started"]'/>
 		<ee:transform doc:name="Transform Message" doc:id="364a58b1-5e72-4df6-bc66-c521654940ad" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	"message": "Hi " + (attributes.queryParams.name default "Rohan") 
+	"message": "Hi " ++ (attributes.queryParams.name default "Rohan") 
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="906ce6b9-96cf-40c3-b334-b75079d26d18" message='#["flow ended"]'/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="24e00295-c04e-470c-bee5-c5e14cba8d92" >
+				<logger level="INFO" doc:name="Logger" doc:id="6a42c978-0a0a-48e5-bb2c-740ac3aacee7" message='#["error handler flow started"]'/>
+				<ee:transform doc:name="Transform Message" doc:id="7884e728-dcfa-4bd1-9741-05f7b036d81f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+{
+	"status": "an error occured",
+	"message": error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+<!-- [STUDIO:"Logger"]				<logger level="INFO" doc:name="Logger" doc:id="84dd94e0-de46-4e38-a3c5-ebfce5e7e3ac" message='#["error handler flow ended"&#93;'/> [STUDIO] -->
+			</on-error-continue>
+		</error-handler>
 	</flow>
 </mule>

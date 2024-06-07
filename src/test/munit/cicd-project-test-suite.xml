@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="cicd-project-test-suite.xml" />
+	<munit:test name="api-succes-test-case" doc:id="1792a590-1cf1-4db0-ab40-59671807d90b" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b52fa2bd-6788-4835-b397-6b5485be8a8c" >
+				<munit:attributes value='#[{"queryParams":{"name": "Rohith"}}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to cicd-projectFlow" doc:id="0dfa8d8f-48df-4ddf-90f5-b776f1ce8789" name="cicd-projectFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<logger level="INFO" doc:name="Logger" doc:id="5dbf1dbf-ea7e-4612-8bde-4a6f43d8b1b2" message='#["validation flow started"]'/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="416325ee-70dd-4acf-9c17-972917f66c2f" actual="#[payload.message]" expected='#["Hi Rohith"]' message='#["required payload not received"]'/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
